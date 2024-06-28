@@ -1,2 +1,2 @@
-# A Flask + React Todo web app
-A tutorial about using Flask for the backend and React for the frontend to build a Todo web app
+# wiki_infografics
+platform to leverage structured information within Wikimedia projects to create informative and visually engaging infographics in both fixed and dynamic formats, under an open license
