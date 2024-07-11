@@ -1,5 +1,5 @@
-from api import app, db
-from api import Todo
+from backend.app import app, db
+from backend.app import Todo
 
 
 if __name__ == "__main__":
