@@ -12,7 +12,7 @@ const OauthCallback = () => {
       const queryString = window.location.search.substring(1);
       const response = await api.post('/oauth-callback', { queryString: queryString });
       console.log(response.data.msg);
-      if(response.data.msg === "Athentiaction sucessfull")
+      if(response.data.msg === "Authenticaction sucessfull")
       navigate("/todos")
     } catch (err) {
       navigate("/")

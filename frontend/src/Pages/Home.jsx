@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import api from "../api/axios";
+import { useNavigate } from "react-router";
 
 const Home = () => {
 
+  const navigate = useNavigate()
 
   useEffect(() => {
     const checkUser = async () => {
@@ -10,6 +12,7 @@ const Home = () => {
         const response = await api.get("/user-info");
         if (response.data.username) {
           console.log("user authenticated " + response.data.username);
+          navigate("/todos")
         } else {
           console.log('User is not authenticated');
         }
@@ -18,7 +21,7 @@ const Home = () => {
       }
     };
     checkUser();
-  },[])
+  },[navigate])
 
 
 
