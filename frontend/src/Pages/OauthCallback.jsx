@@ -1,13 +1,8 @@
 import { useEffect } from 'react';
-// import Card from '../Components/Card/card';
-// import Form from '../Components/Form/form';
 import { useNavigate } from 'react-router';
 import api from '../api/axios';
 
 const OauthCallback = () => {
-  // const [todo, setTodo] = useState([]);
-  // const [addTodo, setAddTodo] = useState("");
-  // const [userName, setUserName] = useState("")
   const navigate = useNavigate();
 
 
@@ -15,7 +10,6 @@ const OauthCallback = () => {
     const oauthAuthenticate = async () => {
     try {
       const queryString = window.location.search.substring(1);
-      // console.log(queryString)
       const response = await api.post('/oauth-callback', { queryString: queryString });
       console.log(response.data.msg);
       if(response.data.msg === "Athentiaction sucessfull")

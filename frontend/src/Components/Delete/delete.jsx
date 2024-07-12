@@ -11,7 +11,7 @@ const Delete = ({ id }) => {
       await api.delete(`/api/${id}`, {
         data: { id: id }
       });
-      navigate("/");
+      navigate("/todos");
     } catch (error) {
       console.error(error);
     }

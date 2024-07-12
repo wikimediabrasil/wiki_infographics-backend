@@ -1,8 +1,6 @@
-from datetime import timedelta
 import os
 import mwoauth
-import secrets
-from flask import Flask, jsonify, request, json, session, redirect,render_template
+from flask import Flask, jsonify, request, json, session
 from waitress import serve
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -16,7 +14,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI', 'sq
 app.config['OAUTH_MWURI'] = os.getenv('OAUTH_MWURI')
 app.config['CONSUMER_KEY'] = os.getenv('CONSUMER_KEY')
 app.config['CONSUMER_SECRET'] = os.getenv('CONSUMER_SECRET')
-# app.config['FRONTEND_URL'] = os.getenv('FRONTEND_URL')
 
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  
 app.config['SESSION_COOKIE_SECURE'] = True     
@@ -85,7 +82,6 @@ def oauth_callback():
         session["access_token"] = dict(zip(access_token._fields, access_token))
         session["username"] = identity["username"]
 
-    # Render the completion template
     return jsonify({"msg": "Athentiaction sucessfull"})
 
 @app.route("/logout")
@@ -105,16 +101,7 @@ def get_user_info():
 @app.route("/api", methods=["GET"])
 def get_all():
     todos = [todo_serializer(todo) for todo in Todo.query.all()]
-    username = session.get("username", None)
-    greetings = {
-        "FIRST_MSG": "Welcome to the TODO app!",
-        "SECOND_MSG": "Have a productive day!"
-    }
-    todos.extend([
-        {"content": greetings.get("FIRST_MSG"), "id": 4},
-        {"content": greetings.get("SECOND_MSG", "my default"), "id": 5}
-    ])
-    # todos.append({"username": username})
+    
     return jsonify(todos)
 
 @app.route("/api/create", methods=["POST"])

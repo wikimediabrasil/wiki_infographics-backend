@@ -47,17 +47,14 @@ const Show = () => {
 
   const handleEdit = () => {
     setIsEditing(true);
-    if (todo.length > 0) {
-      setUpdateTodo(todo[0].content);
-    }
+    setUpdateTodo(todo.content);
   };
+
 
   return (
     <div>
       {isEditing && <input type="text" value={updateTodo} onChange={handleChange} />}
-      {todo.length > 0 && todo.map(data => 
-        (<div key={data.id}>{data.content}</div>)
-      )}
+      <div>{todo && todo.content}</div>
       {!isEditing && <Delete id={id} />}
       <Edit isEditing={isEditing} handleEdit={handleEdit} handleSave={handleSave} id={id} />
       <hr />
