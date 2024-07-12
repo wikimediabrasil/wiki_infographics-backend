@@ -27,7 +27,7 @@ const Home = () => {
     try {
       const response = await api.get('/login');
       console.log(response.data.redirect_url)
-      window.open(response.data.redirect_url, '_blank');
+      window.location.href = response.data.redirect_url;
     } catch (error) {
       console.error('Error logging in', error);
     }

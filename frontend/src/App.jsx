@@ -10,6 +10,7 @@ import {
 import TodoPage from './Pages/TodoPage';
 import Show from "./Pages/Show";
 import Home from "./Pages/Home";
+import OauthCallback from "./Pages/OauthCallback";
 import './App.css';
 
 const App = () => {
@@ -33,6 +34,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} /> 
+        <Route path="/oauth-callback" element={<OauthCallback />} /> 
         <Route path="/todos" element={<TodoPage/>} /> 
         <Route path="/todos/:id" element={<Show/>} /> 
       </Routes>

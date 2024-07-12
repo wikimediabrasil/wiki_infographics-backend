@@ -16,14 +16,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI', 'sq
 app.config['OAUTH_MWURI'] = os.getenv('OAUTH_MWURI')
 app.config['CONSUMER_KEY'] = os.getenv('CONSUMER_KEY')
 app.config['CONSUMER_SECRET'] = os.getenv('CONSUMER_SECRET')
-app.config['FRONTEND_URL'] = os.getenv('FRONTEND_URL')
+# app.config['FRONTEND_URL'] = os.getenv('FRONTEND_URL')
 
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  
 app.config['SESSION_COOKIE_SECURE'] = True     
 
 
 db = SQLAlchemy(app)
-CORS(app, supports_credentials=True, origins=[app.config['FRONTEND_URL']])
+CORS(app, supports_credentials=True)
 app.debug = os.getenv('FLASK_ENV') == 'development'
 
 class Todo(db.Model):
@@ -38,10 +38,8 @@ def todo_serializer(todo):
 
 @app.before_request
 def require_login():
-    # List of routes that do not require authentication
     public_routes = ('index', 'login', 'logout', 'oauth_callback', 'static')
-    
-    # Allow access if the endpoint is in the public_routes list or username is set
+
     if request.endpoint not in public_routes and 'username' not in session:
         return jsonify({"error": "Authentication required. Please log in."}), 401
 
@@ -57,18 +55,27 @@ def login():
         session["request_token"] = dict(zip(request_token._fields, request_token))
         return jsonify({"redirect_url": redirect_url})
 
-@app.route("/oauth-callback")
+@app.route("/oauth-callback", methods=["POST"])
 def oauth_callback():
+    request_data = json.loads(request.data)
+    query_string = request_data["queryString"].encode("utf-8")
+    # print({"query_string": query_string, "session_token": session["request_token"]})
+
     if "request_token" not in session:
         return jsonify({"error": "OAuth callback failed. Are cookies disabled?"}), 400
+    
+    if query_string is None:
+        return jsonify({"error": "OAuth callback failed. Query string missing or invalid"}), 400
 
     consumer_token = mwoauth.ConsumerToken(app.config["CONSUMER_KEY"], app.config["CONSUMER_SECRET"])
+    
     try:
         access_token = mwoauth.complete(
             app.config["OAUTH_MWURI"],
             consumer_token,
             mwoauth.RequestToken(**session["request_token"]),
-            request.query_string
+            query_string
+            # request.query_string
         )
         identity = mwoauth.identify(app.config["OAUTH_MWURI"], consumer_token, access_token)
     except Exception:
@@ -79,7 +86,7 @@ def oauth_callback():
         session["username"] = identity["username"]
 
     # Render the completion template
-    return render_template("auth_complete.html")
+    return jsonify({"msg": "Athentiaction sucessfull"})
 
 @app.route("/logout")
 def logout():
