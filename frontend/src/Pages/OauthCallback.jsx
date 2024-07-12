@@ -25,7 +25,7 @@ const OauthCallback = () => {
     }
   };
   oauthAuthenticate();
-  }, []);
+  }, [navigate]);
 
 
   return (
