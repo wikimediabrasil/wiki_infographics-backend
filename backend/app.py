@@ -2,7 +2,6 @@ import os
 import yaml
 import mwoauth
 import configparser
-from waitress import serve
 from flask_cors import CORS
 from flask_babel import Babel
 from flask_sqlalchemy import SQLAlchemy
@@ -16,7 +15,9 @@ app = Flask(__name__)
 # ==================================================================================================================== #
 # CONFIGURATION
 # ==================================================================================================================== #
+
 app.config.update(yaml.safe_load(open(os.path.join(__dir__, 'config.yaml'))))
+
 
 @app.before_request
 def require_login():
@@ -35,6 +36,7 @@ def require_login():
     if request.endpoint not in public_routes and 'username' not in session:
         # Return a 401 Unauthorized response if the user is not authenticated
         return jsonify({"error": "Authentication required. Please log in."}), 401
+
 
 # ----- Cross-Origin Resource Sharing configuration ----- #
 CORS(app, supports_credentials=True)
@@ -72,7 +74,6 @@ def todo_serializer(todo):
     return {"id": todo.id, "content": todo.content}
 
 
-
 # ----- Translation configuration ----- #
 def get_locale(lang=None):
     """
@@ -107,6 +108,7 @@ BABEL.init_app(app, locale_selector=get_locale)
 # ==================================================================================================================== #
 # AUTHENTICATION
 # ==================================================================================================================== #
+
 @app.route('/login')
 def login():
     """
@@ -200,7 +202,6 @@ def get_user_info():
     return jsonify({"error": "Authentication required. Please log in."}), 401
 
 
-
 # ==================================================================================================================== #
 # QUERY
 # ==================================================================================================================== #
@@ -215,7 +216,7 @@ def home():
 @app.route("/api", methods=["GET"])
 def get_all():
     todos = [todo_serializer(todo) for todo in Todo.query.all()]
-    
+
     return jsonify(todos)
 
 
@@ -253,7 +254,6 @@ def update(id):
     todo.content = request_data.get("content", todo.content)
     db.session.commit()
     return jsonify({'msg': "Updated successfully"}), 200
-
 
 
 if __name__ == '__main__':

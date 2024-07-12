@@ -14,21 +14,6 @@ import OauthCallback from "./Pages/OauthCallback";
 import './App.css';
 
 const App = () => {
-  // useEffect(() => {
-  //   const checkAuth = async () => {
-  //     try {
-  //       const response = await api.get("/user-info");
-  //       if (response.data.username) {
-  //         console.log('User is authenticated');
-  //       } else {
-  //         console.log('User is not authenticated');
-  //       }
-  //     } catch (error) {
-  //       console.error('Error checking authentication', error);
-  //     }
-  //   };
-  //   checkAuth();
-  // }, []);
 
   return (
     <Router>
