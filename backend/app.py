@@ -34,7 +34,7 @@ def require_login():
 
     # Check if the current endpoint is not in the public routes and the user is not authenticated
     if request.endpoint not in public_routes and 'username' not in session:
-        # Return a 401 Unauthorized response if the user is not authenticated
+        
         return jsonify({"error": "Authentication required. Please log in."}), 401
 
 
@@ -127,10 +127,19 @@ def login():
         return jsonify({"error": "OAuth initiation failed"}), 500
     else:
         session['request_token'] = dict(zip(request_token._fields, request_token))
+
+        # For only Flask setup it would be - return redirect(redirect_)
         return jsonify({"redirect_url": redirect_})
 
 
-@app.route('/oauth-callback', methods=["POST"])
+# For only Flask setup it would be : 
+# - ('/oauth-callback', methods=["GET"])
+# - No data would be expected(request_data = json.loads(request.data)) 
+#   as the Wikimedia callback URL would be the Flask server end-point 
+#   "/oauth-callback"
+# - query_string would be from Flask's request(request.query_string)
+# - function return would be - "return redirect(url_for('index'))"
+@app.route('/oauth-callback', methods=["POST"]) 
 def oauth_callback():
     """
     Handles the OAuth callback, completing the authentication process.
@@ -143,9 +152,9 @@ def oauth_callback():
     - Identifies the user and stores the access token and username in the session.
     :return: JSON response indicating success or failure of authentication.
     """
+
     request_data = json.loads(request.data)
     query_string = request_data["queryString"].encode("utf-8")  #converts to the acceptable encoded datatype(b'query_string')
-    # print({"query_string": query_string, "session_token": session["request_token"]})
     
     if 'request_token' not in session:
         return jsonify({"error": "OAuth callback failed. Are cookies disabled?"}), 400
@@ -161,7 +170,6 @@ def oauth_callback():
             consumer_token,
             mwoauth.RequestToken(**session['request_token']),
             query_string
-            # request.query_string
         )
         identity = mwoauth.identify(app.config['OAUTH_MWURI'], consumer_token, access_token)
     except Exception:
@@ -170,7 +178,6 @@ def oauth_callback():
     else:
         session['access_token'] = dict(zip(access_token._fields, access_token))
         session['username'] = identity['username']
-        # flash("You were signed in, %s!" % identity["username"], "success")
 
     return jsonify({"msg": "Authenticaction sucessfull"})
 
@@ -182,6 +189,8 @@ def logout():
     :return: JSON response indicating success.
     """
     session.clear()
+
+    # For only Flask setup it would be - return redirect(url_for('index'))
     return jsonify({"msg": "logged out successfully"})
 
 
@@ -209,8 +218,8 @@ def get_user_info():
 @app.route('/', methods=['GET'])
 def home():
     username = session.get('username', None)
+
     return jsonify({"username": username})
-    # return render_template('home.html', title='Home', username=username)
 
 
 @app.route("/api", methods=["GET"])
@@ -233,6 +242,7 @@ def create():
 
 @app.route("/api/<int:id>", methods=["GET"])
 def show(id):
+
     return jsonify(todo_serializer(Todo.query.get_or_404(id)))
 
 
@@ -253,6 +263,7 @@ def update(id):
         return jsonify({"error": "Todo not found"}), 404
     todo.content = request_data.get("content", todo.content)
     db.session.commit()
+
     return jsonify({'msg': "Updated successfully"}), 200
 
 
