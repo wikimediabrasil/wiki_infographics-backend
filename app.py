@@ -5,7 +5,7 @@ import configparser
 from flask_cors import CORS
 from flask_babel import Babel
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, jsonify, request, json, session, redirect, url_for, flash, render_template
+from flask import Flask, jsonify, request, json, session, redirect, url_for
 
 
 __dir__ = os.path.dirname(__file__)
@@ -154,7 +154,8 @@ def oauth_callback():
     """
 
     request_data = json.loads(request.data)
-    query_string = request_data["queryString"].encode("utf-8")  #converts to the acceptable encoded datatype(b'query_string')
+    # converts to the acceptable encoded datatype(b'query_string')
+    query_string = request_data["queryString"].encode("utf-8")
     
     if 'request_token' not in session:
         return jsonify({"error": "OAuth callback failed. Are cookies disabled?"}), 400
