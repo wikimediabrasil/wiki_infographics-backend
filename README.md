@@ -1,27 +1,61 @@
 # Wiki Infographics
-Platform to leverage structured information within Wikimedia projects to create informative and visually engaging infographics in both fixed and dynamic formats, under an open license
+Wiki Infographics is a platform to leverage structured information within Wikimedia projects to create informative and visually engaging infographics in both fixed and dynamic formats, under an open license. It is available at https://infographics.toolforge.org.
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Getting started:
+### Prerequisites
+
+Before you begin, ensure you have met the following requirements:
+
+- Python 3
+- Flask 3.0.3
+
+### Installation
+
 1. Clone the repository
-```
-git clone https://github.com/WikiMovimentoBrasil/wiki_infographics-backend.git
-```
+
+   ```bash
+   git clone https://github.com/WikiMovimentoBrasil/wiki_infographics-backend.git
+
+2. Navigate to the project directory:
+   ```bash
+   cd wiki_infographics-backend
+
 2. Create virtual environment
-```
-python -m venv venv
-```
+   ```bash
+   python -m venv venv
+   
 4. Activate the virtual environment
-```
-.\venv\Scripts\activate
-```
-5. Install backend dependencies
-```
-pip install -r requirements.txt
-```
-6. create a `config.yaml` file in your backend directory and add to it the following variables
-```
-SECRET_KEY: a randomly generated secret value
-CONSUMER_KEY: Your oauth key from the oauth consumer registration
-CONSUMER_SECRET: Your oauth secret from the oauth consumer registration
-OAUTH_MWURI: "https://meta.wikimedia.org/w/index.php"
-```
+   ```bash
+   .\venv\Scripts\activate
+
+5. Install project dependencies:
+   ```bash
+   pip install -r requirements.txt
+
+6. create a `config.yaml` file in your directory by copying `config-example.yaml` and filling the fields with the proper values.
+
+7. Start the development server:
+   ```bash
+    python manage.py runserver
+
+You should now be able to access the project at http://localhost:8000 in your web browser
+
+## Contributing
+Contributions are welcome! To contribute to Wiki Infographics, follow these steps:
+
+1. Fork the repository
+2. Create a new branch: git checkout -b feature/your-feature
+3. Make your changes and commit them: git commit -m 'Add some feature'
+4. Push to the branch: git push origin feature/your-feature
+5. Create a pull request on GitHub
+
+## License
+This project is licensed under the [MIT License](https://opensource.org/license/mit) - see the LICENSE file for details.
