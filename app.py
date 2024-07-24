@@ -7,6 +7,8 @@ from flask_babel import Babel
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, jsonify, request, json, session, redirect, url_for
 
+from query.query import query
+from query.check_avail_charts import check_avail_charts
 
 __dir__ = os.path.dirname(__file__)
 app = Flask(__name__)
@@ -30,7 +32,7 @@ def require_login():
     it returns a 401 Unauthorized response with an error message.
     """
     # List of routes that do not require authentication
-    public_routes = ('index', 'login', 'logout', 'oauth_callback', 'static', 'set_locale')
+    public_routes = ('testing', 'index', 'login', 'logout', 'oauth_callback', 'static', 'set_locale')
 
     # Check if the current endpoint is not in the public routes and the user is not authenticated
     if request.endpoint not in public_routes and 'username' not in session:
@@ -154,8 +156,7 @@ def oauth_callback():
     """
 
     request_data = json.loads(request.data)
-    # converts to the acceptable encoded datatype(b'query_string')
-    query_string = request_data["queryString"].encode("utf-8")
+    query_string = request_data["queryString"].encode("utf-8")  #converts to the acceptable encoded datatype(b'query_string')
     
     if 'request_token' not in session:
         return jsonify({"error": "OAuth callback failed. Are cookies disabled?"}), 400
@@ -178,9 +179,13 @@ def oauth_callback():
         return jsonify({"error": "OAuth authentication failed"}), 500
     else:
         session['access_token'] = dict(zip(access_token._fields, access_token))
+
         session['username'] = identity['username']
 
-    return jsonify({"msg": "Authenticaction sucessfull"})
+    return jsonify({
+        "msg": "Authentication successful",
+        "data":{"username": identity["username"]}
+        })
 
 
 @app.route('/logout')
@@ -203,10 +208,11 @@ def get_user_info():
     - Checks if the username is stored in the session.
     - Returns the username if it exists.
     - Returns an authentication prompt message if the user is not logged in.
-    :return: JSON response with username or authentication prompt.
+    :return: JSON response with username or authentication prompt..
     """
     username = session.get("username", None)
     if username:
+
         return jsonify({"username": username})
     
     return jsonify({"error": "Authentication required. Please log in."}), 401
@@ -216,56 +222,89 @@ def get_user_info():
 # QUERY
 # ==================================================================================================================== #
 
-@app.route('/', methods=['GET'])
-def home():
-    username = session.get('username', None)
-
-    return jsonify({"username": username})
 
 
-@app.route("/api", methods=["GET"])
-def get_all():
-    todos = [todo_serializer(todo) for todo in Todo.query.all()]
+@app.route('/query', methods=['POST'])
+def query_endpoint():
+    """
+    Handle the SPARQL query and return chart data.
+    """
+    sparql_string = request.json.get('sparql_string')
 
-    return jsonify(todos)
+    if not sparql_string:
+        return jsonify({"error": "No query provided"}), 400
 
+    try:
+        processed_data = query(sparql_string)
+        charts_data = check_avail_charts(processed_data)
 
-@app.route("/api/create", methods=["POST"])
-def create():
-    request_data = json.loads(request.data)
-    todo = Todo(content=request_data["content"])
-
-    db.session.add(todo)
-    db.session.commit()
-
-    return jsonify({'msg': "Todo created successfully"}), 201
-
-
-@app.route("/api/<int:id>", methods=["GET"])
-def show(id):
-
-    return jsonify(todo_serializer(Todo.query.get_or_404(id)))
-
-
-@app.route("/api/<int:id>", methods=["DELETE"])
-def delete(id):
-    todo = Todo.query.get_or_404(id)
-    db.session.delete(todo)
-    db.session.commit()
-
-    return jsonify({'msg': "Deleted successfully"}), 204
+        return jsonify({
+            "msg": "Successful",
+            "data": charts_data
+            })
+    except Exception as e:
+        
+        return jsonify({"error": "Error in query"}), 500
 
 
-@app.route("/api/<int:id>", methods=["PUT"])
-def update(id):
-    request_data = json.loads(request.data)
-    todo = db.session.get(Todo, id)
-    if not todo:
-        return jsonify({"error": "Todo not found"}), 404
-    todo.content = request_data.get("content", todo.content)
-    db.session.commit()
 
-    return jsonify({'msg': "Updated successfully"}), 200
+
+# @app.route('/', methods=['GET'])
+# def home():
+#     username = session.get('username', None)
+
+#     return jsonify({"username": username})
+
+# @app.route('/', methods=['GET'])
+# def testing():
+#     status = query()
+
+#     return jsonify({"status": status})
+
+
+# @app.route("/api", methods=["GET"])
+# def get_all():
+#     todos = [todo_serializer(todo) for todo in Todo.query.all()]
+
+#     return jsonify(todos)
+
+
+# @app.route("/api/create", methods=["POST"])
+# def create():
+#     request_data = json.loads(request.data)
+#     todo = Todo(content=request_data["content"])
+
+#     db.session.add(todo)
+#     db.session.commit()
+
+#     return jsonify({'msg': "Todo created successfully"}), 201
+
+
+# @app.route("/api/<int:id>", methods=["GET"])
+# def show(id):
+
+#     return jsonify(todo_serializer(Todo.query.get_or_404(id)))
+
+
+# @app.route("/api/<int:id>", methods=["DELETE"])
+# def delete(id):
+#     todo = Todo.query.get_or_404(id)
+#     db.session.delete(todo)
+#     db.session.commit()
+
+#     return jsonify({'msg': "Deleted successfully"}), 204
+
+
+# @app.route("/api/<int:id>", methods=["PUT"])
+# def update(id):
+#     request_data = json.loads(request.data)
+#     todo = db.session.get(Todo, id)
+#     if not todo:
+#         return jsonify({"error": "Todo not found"}), 404
+#     todo.content = request_data.get("content", todo.content)
+#     db.session.commit()
+
+#     return jsonify({'msg': "Updated successfully"}), 200
 
 
 if __name__ == '__main__':

@@ -4,3 +4,4 @@ flask-sqlalchemy
 flask-cors
 PyYAML
 mwoauth
+pandas
