@@ -2,7 +2,7 @@
 
 Wiki Infographics is a platform to leverage structured information within Wikimedia projects to create informative and visually engaging infographics in both fixed and dynamic formats, under an open license. It is available at https://infographics.toolforge.org.
 
-The frontend codebase is also available in this repository [wiki_infographics
+The frontend codebase is available in this repository [wiki_infographics
 ](https://github.com/WikiMovimentoBrasil/wiki_infographics)
 
 ## Table of Contents
