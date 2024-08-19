@@ -43,7 +43,6 @@ def process_bcr_data(data):
 
 
 
-
 def identify_word_identifier_columns(data):
     """
     Identify columns with word identifiers.
