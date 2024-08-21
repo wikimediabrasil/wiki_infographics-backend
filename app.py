@@ -224,27 +224,31 @@ def get_user_info():
 
 
 
-@app.route('/query', methods=['POST'])
+@app.route('/query', methods=['GET'])
 def query_endpoint():
     """
     Handle the SPARQL query and return chart data.
     """
-    sparql_string = request.json.get('sparql_string')
+    sparql_string = request.args.get('query')  # Retrieve the query string from the URL parameters
 
     if not sparql_string:
         return jsonify({"error": "No query provided"}), 400
 
     try:
         processed_data = query(sparql_string)
+
+        # Check if processed_data contains an error
+        if isinstance(processed_data, dict) and "error" in processed_data:
+            return jsonify(processed_data), 500
+
         charts_data = check_avail_charts(processed_data)
 
         return jsonify({
             "msg": "Successful",
             "data": charts_data
-            })
+        })
     except Exception as e:
-        
-        return jsonify({"error": "Error in query"}), 500
+        return jsonify({"error": str(e)}), 500  # Convert the exception to a string before returning
 
 
 
