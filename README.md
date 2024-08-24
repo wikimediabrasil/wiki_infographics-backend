@@ -83,7 +83,7 @@ Contributions are welcome! To contribute to Wiki Infographics, follow these step
 
 ## Todos
 
-- [ ] Save users Successful SPARQL Queries
+- [ ] Save users successful SPARQL queries
 
 ## License
 
