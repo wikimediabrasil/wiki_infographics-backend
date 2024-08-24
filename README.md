@@ -81,6 +81,10 @@ Contributions are welcome! To contribute to Wiki Infographics, follow these step
 4. Push to the branch: git push origin feature/your-feature
 5. Create a pull request on GitHub
 
+## Todos
+
+- [ ] Save users Successful SPARQL Queries
+
 ## License
 
 This project is licensed under the [MIT License](https://opensource.org/license/mit) - see the LICENSE file for details.

@@ -29,9 +29,7 @@ def query(sparql_string):
     # Convert results to DataFrame
     df = pd.DataFrame([{var: binding.get(var, {}).get('value', None) for var in variables} for binding in results])
 
-    print(df)
     return df
-
 
 
 
