@@ -71,6 +71,29 @@ You should now be able to access the project at http://localhost:8000 in your we
 To connect frontend with this backend go to this repository [wiki_infographics
 ](https://github.com/WikiMovimentoBrasil/wiki_infographics)
 
+## Running in toolforge
+### Rebuild the image (after a code change)
+```
+> ssh login.toolforge.org
+> toolforge~# become <yourtool>
+> yourtool@toolforge~# toolforge build start --image-name backend <url_for_this_repo>
+
+## If already exists, restart it
+> yourtool@toolforge~# toolforge job restart backend
+
+## If starting up for the first time
+> yourtool@toolforge~# toolforge job run \
+    --command "backend" \
+    --image tools-harbor.wmcloud.org/tool-<your_tool>/backend:latest \
+    --port 8000 \
+    --continuous \
+    --mount=all \
+    backend
+```
+
+More info on buildservice (debugging, etc.) [here](https://wikitech.wikimedia.org/wiki/Help:Toolforge/Build_Service)
+
+
 ## Contributing
 
 Contributions are welcome! To contribute to Wiki Infographics, follow these steps:

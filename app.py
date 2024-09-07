@@ -18,7 +18,11 @@ app = Flask(__name__)
 # CONFIGURATION
 # ==================================================================================================================== #
 
-app.config.update(yaml.safe_load(open(os.path.join(__dir__, 'config.yaml'))))
+# Inside toolforge the tool home directory gets mounted under $TOOL_DATA_DIR
+config_file = os.path.join(os.environ.get("TOOL_DATA_DIR", __dir__), "config.yaml")
+app.config.update(yaml.safe_load(open(config_file)))
+# TODO: Consider using envvars instead of a configuration file on NFS
+#       https://wikitech.wikimedia.org/wiki/Help:Toolforge/Envvars
 
 
 @app.before_request
@@ -45,8 +49,9 @@ CORS(app, supports_credentials=True)
 
 
 # ----- Database configuration ----- #
-HOME = os.environ.get('HOME') or ""
-replica_path = HOME + '/replica.my.cnf'
+# Inside toolforge runtime, the tool directory is mounted under $TOOL_DATA_DIR
+TOOL_DATA_DIR = os.environ.get("TOOL_DATA_DIR", "")
+replica_path = TOOL_DATA_DIR + '/replica.my.cnf'
 if os.path.exists(replica_path):
     config = configparser.ConfigParser()
     config.read(replica_path)
@@ -54,7 +59,7 @@ if os.path.exists(replica_path):
     host_and_database = f"tools.db.svc.wikimedia.cloud/{app.config['DATABASE_NAME']}"
     app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{user_and_password}@{host_and_database}"
 else:
-    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + os.path.join(HOME, 'database.db')
+    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + os.path.join(TOOL_DATA_DIR, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -316,4 +321,6 @@ if __name__ == '__main__':
         print("Creating tables...")
         db.create_all()
         print("Tables created successfully.")
-    app.run(debug=True, port=8000)
+    # to run on toolforge it should listen on 0.0.0.0, otherwise other
+    # processes can't reach it
+    app.run(host="0.0.0.0", debug=True, port=8000)

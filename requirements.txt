@@ -5,3 +5,4 @@ flask-cors
 PyYAML
 mwoauth
 pandas
+pymysql
