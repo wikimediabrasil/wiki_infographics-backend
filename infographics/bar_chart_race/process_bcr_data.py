@@ -26,11 +26,8 @@ def process_bcr_data(data):
     # 4. Identify columns with word identifiers
     identifier_columns = identify_word_identifier_columns(data.iloc[:, :-2])
 
-
-    # Rename the relevant columns based on the conditions
     new_columns = rename_columns(data.columns, identifier_columns)
 
-    # Create a new DataFrame with the renamed columns
     new_data = data.copy()
     new_data.columns = new_columns
 
@@ -38,10 +35,117 @@ def process_bcr_data(data):
     selected_columns = [col for col in new_columns if col in ["category", "name", "value", "date"]]
     processed_data = new_data[selected_columns]
 
-    print(processed_data)
-    return processed_data.to_dict(orient='records')
+    processed = fill_nans(processed_data)
+
+    result =  processed.to_dict(orient='records')
+
+    return result
 
 
+def fill_nans(df, fill_NaN=True):
+    """
+    Fill NaNs in dataframe using time-based linear interpolation.
+
+    Args:
+      df (pd.DataFrame): A dataframe.
+      fill_NaN (bool): Enable or disable filling NaNs with appropriate values.
+
+    Returns:
+      pd.DataFrame: A DataFrame containing the cleaned data.
+    """
+
+    # Make a deep copy of the DataFrame to avoid SettingWithCopyWarning
+    df = df.copy()
+
+    df['value'] = df['value'].astype(int)
+    df['date'] = pd.to_datetime(df['date']).dt.year
+    
+    if "category" in df.columns:
+
+        # Handle duplicates by aggregating values within the same year and name
+        df_aggregated = df.groupby(["date", "name", "category"], as_index=False).agg({
+            "value": "max",
+            "date": "first"
+        })
+
+        # Convert the year back to the "YYYY-01-01" format
+        df_aggregated['date'] = df_aggregated['date'].astype(str) + '-01-01'
+
+        # Pivot the table using the original 'date' column
+        df_pivoted = df_aggregated.pivot(index="date", columns=["name", "category"], values="value").reset_index()
+    else:
+        # Handle duplicates by aggregating values within the same year and name
+        df_aggregated = df.groupby(["date", "name"], as_index=False).agg({
+            "value": "max",
+            "date": "first" 
+        })
+
+        # Convert the year back to the "YYYY-01-01" format
+        df_aggregated['date'] = df_aggregated['date'].astype(str) + '-01-01'
+
+        # Pivot the table using the original 'date' column
+        df_pivoted = df_aggregated.pivot(index="date", columns="name", values="value").reset_index()
+   
+    if fill_NaN:
+        
+        # Fill NaNs before the first valid value in each column with zero
+        for col in df_pivoted.columns:
+            first_valid_index = df_pivoted[col].first_valid_index()
+            if first_valid_index is not None:
+                df_pivoted.loc[:first_valid_index, col] = df_pivoted.loc[:first_valid_index, col].fillna(0)
+        
+        # Check if NaN is the last value in a column(Edge case) and fill NaNs in each column
+        projection_factor = 1.1
+
+        for col in df_pivoted.columns:
+            last_valid_index = df_pivoted[col].last_valid_index()
+            
+            # If there is a last valid index and the last value is NaN, project the value
+            if last_valid_index is not None and pd.isna(df_pivoted[col].iloc[-1]):
+                projected_value = df_pivoted[col].iloc[last_valid_index] * projection_factor
+                df_pivoted.loc[df_pivoted.index[-1], col] = projected_value
+
+        df_pivoted['date'] = pd.to_datetime(df_pivoted['date'], format='%Y-%m-%d')
+        df_pivoted.set_index('date', inplace=True)  
+
+        # Use time based linear interpolation to fill NaNs between known values
+        df_pivoted = df_pivoted.interpolate(method='time', limit_direction='forward', axis=0).astype(int)
+
+        # print(df_pivoted)
+        df_pivoted = df_pivoted.reset_index()
+
+        # Flatten the MultiIndex columns if necessary
+        df_pivoted.columns = ['_'.join(col).strip() if isinstance(col, tuple) else col for col in df_pivoted.columns]
+
+        if "category" in df.columns:
+
+            df_unpivoted = df_pivoted.melt(id_vars=['date_'], var_name='category_name', value_name='value')
+
+            # Split the concatenated column names back into 'category' and 'name'
+            df_unpivoted[['category', 'name']] = df_unpivoted['category_name'].str.split('_', expand=True)
+            df_unpivoted.drop(columns=['category_name'], inplace=True)
+
+            df_unpivoted.reset_index(drop=True, inplace=True)
+
+            # Rename columns to match the desired format
+            df_unpivoted.rename(columns={'date_': 'date'}, inplace=True)
+
+            # Ensure columns are in the desired order
+            df_unpivoted = df_unpivoted[['category', 'name', 'value', 'date']]
+        else:
+
+            df_unpivoted = df_pivoted.melt(id_vars=['date'], var_name='name', value_name='value')
+
+            df_unpivoted.reset_index(drop=True, inplace=True)
+
+            # Ensure columns are in the desired order
+            df_unpivoted = df_unpivoted[['name', 'value', 'date']]
+
+        df_unpivoted[['date', 'value']] = df_unpivoted[['date', 'value']].astype(str)
+        
+        return df_unpivoted
+
+    return df_pivoted
 
 def identify_word_identifier_columns(data):
     """
