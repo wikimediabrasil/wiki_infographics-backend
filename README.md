@@ -1,9 +1,12 @@
 # Wiki Infographics
 
-Wiki Infographics is a platform to leverage structured information within Wikimedia projects to create informative and visually engaging infographics in both fixed and dynamic formats, under an open license. It is available at https://infographics.toolforge.org.
+Wiki Infographics is a platform to leverage structured information within
+Wikimedia projects to create informative and visually engaging infographics in
+both fixed and dynamic formats, under an open license. It is available at
+https://infographics.toolforge.org.
 
-The frontend codebase is available in this repository [wiki_infographics
-](https://github.com/WikiMovimentoBrasil/wiki_infographics)
+The frontend codebase is available in this repository
+[wiki_infographics ](https://github.com/WikiMovimentoBrasil/wiki_infographics)
 
 ## Table of Contents
 
@@ -59,20 +62,24 @@ Before you begin, ensure you have met the following requirements:
 
    ```
 
-6. create a `config.yaml` file in your directory by copying `config-example.yaml` and filling the fields with the proper values.
+6. create a `config.yaml` file in your directory by copying
+   `config-example.yaml` and filling the fields with the proper values.
 
 7. Start the development server:
    ```bash
     python app.py
    ```
 
-You should now be able to access the project at http://localhost:8000 in your web browser
+You should now be able to access the project at http://localhost:8000 in your
+web browser
 
-To connect frontend with this backend go to this repository [wiki_infographics
-](https://github.com/WikiMovimentoBrasil/wiki_infographics)
+To connect frontend with this backend go to this repository
+[wiki_infographics ](https://github.com/WikiMovimentoBrasil/wiki_infographics)
 
 ## Running in toolforge
+
 ### Rebuild the image (after a code change)
+
 ```
 > ssh login.toolforge.org
 > toolforge~# become <yourtool>
@@ -82,21 +89,22 @@ To connect frontend with this backend go to this repository [wiki_infographics
 > yourtool@toolforge~# toolforge job restart backend
 
 ## If starting up for the first time
-> yourtool@toolforge~# toolforge job run \
+> yourtool@toolforge~# toolforge jobs run \
     --command "backend" \
-    --image tools-harbor.wmcloud.org/tool-<your_tool>/backend:latest \
+    --image tool-infographics/backend:latest \
     --port 8000 \
     --continuous \
     --mount=all \
     backend
 ```
 
-More info on buildservice (debugging, etc.) [here](https://wikitech.wikimedia.org/wiki/Help:Toolforge/Build_Service)
-
+More info on buildservice (debugging, etc.)
+[here](https://wikitech.wikimedia.org/wiki/Help:Toolforge/Build_Service)
 
 ## Contributing
 
-Contributions are welcome! To contribute to Wiki Infographics, follow these steps:
+Contributions are welcome! To contribute to Wiki Infographics, follow these
+steps:
 
 1. Fork the repository
 2. Create a new branch: git checkout -b feature/your-feature
@@ -110,4 +118,6 @@ Contributions are welcome! To contribute to Wiki Infographics, follow these step
 
 ## License
 
-This project is licensed under the [MIT License](https://opensource.org/license/mit) - see the LICENSE file for details.
+This project is licensed under the
+[MIT License](https://opensource.org/license/mit) - see the LICENSE file for
+details.
