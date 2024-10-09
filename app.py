@@ -55,7 +55,7 @@ replica_path = TOOL_DATA_DIR + '/replica.my.cnf'
 if os.path.exists(replica_path):
     config = configparser.ConfigParser()
     config.read(replica_path)
-    user_and_password = f"{app.config['BACKEND-USER']}:{app.config['BACKEND-PASSWORD']}"
+    user_and_password = f"{app.config['BACKEND_USER']}:{app.config['BACKEND_PASSWORD']}"
     host_and_database = f"tools.db.svc.wikimedia.cloud/{app.config['DATABASE_NAME']}"
     app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{user_and_password}@{host_and_database}"
 else:
